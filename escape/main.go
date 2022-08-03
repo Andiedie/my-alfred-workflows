@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 
 	aw "github.com/deanishe/awgo"
@@ -15,9 +16,16 @@ func init() {
 func run() {
 	arg := wf.Args()[0]
 
-	v, _ := json.Marshal(arg)
+	buf := bytes.Buffer{}
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+	err := encoder.Encode(arg)
+	if err != nil {
+		panic(err)
+	}
+	v := buf.String()
 
-	wf.NewItem(string(v)).Subtitle("json escape").Arg(string(v)).Valid(true)
+	wf.NewItem(v).Subtitle("json escape").Arg(v).Valid(true)
 
 	wf.SendFeedback()
 }
